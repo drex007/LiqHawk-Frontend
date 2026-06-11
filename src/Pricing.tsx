@@ -4,7 +4,6 @@ type Plan = {
   tagline: string;
   highlighted?: boolean;
   features: string[];
-  cta: string;
 };
 
 const PLANS: Plan[] = [
@@ -21,7 +20,6 @@ const PLANS: Plan[] = [
       "2 API keys",
       "Community Discord & email support",
     ],
-    cta: "Start with Starter",
   },
   {
     name: "Pro",
@@ -38,7 +36,6 @@ const PLANS: Plan[] = [
       "10 API keys with per-key scopes",
       "Priority email support (24h response)",
     ],
-    cta: "Upgrade to Pro",
   },
   {
     name: "Enterprise",
@@ -54,7 +51,6 @@ const PLANS: Plan[] = [
       "Dedicated account manager",
       "24/7 support with 99.9% uptime SLA",
     ],
-    cta: "Talk to sales",
   },
 ];
 
@@ -72,6 +68,14 @@ export default function Pricing() {
           Every plan ships with the same low-latency risk engine — pick the
           request volume, retention window, and SLA that fits your stack.
         </p>
+
+        <div className="mx-auto mt-6 inline-flex items-center gap-2 rounded-full border border-amber-300 bg-amber-50 px-4 py-1.5 text-xs font-semibold text-amber-800 dark:border-amber-500/40 dark:bg-amber-500/10 dark:text-amber-300">
+          <span className="relative flex h-2 w-2">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
+          </span>
+          Coming soon — public API is in private beta
+        </div>
       </header>
 
       <section className="grid gap-6 md:grid-cols-3">
@@ -132,13 +136,11 @@ function PlanCard({ plan }: { plan: Plan }) {
       </ul>
 
       <button
-        className={`mt-7 w-full rounded-md py-2 text-sm font-semibold transition ${
-          plan.highlighted
-            ? "bg-rose-500 text-white hover:bg-rose-600"
-            : "bg-slate-900 text-slate-100 hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
-        }`}
+        disabled
+        title="Public API is launching soon"
+        className="mt-7 w-full cursor-not-allowed rounded-md border border-slate-200 bg-slate-100 py-2 text-sm font-semibold text-slate-500 dark:border-slate-700 dark:bg-slate-800/60 dark:text-slate-400"
       >
-        {plan.cta}
+        Coming soon
       </button>
     </article>
   );
