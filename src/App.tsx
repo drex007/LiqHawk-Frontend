@@ -1,6 +1,10 @@
 import type { MouseEvent as ReactMouseEvent } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import Pricing from "./Pricing";
+import Recent from "./Recent";
+import { RISK_ORDER, RISK_STYLES } from "./risk";
+import { RowTooltip } from "./RowTooltip";
+import { CopyButton } from "./CopyButton";
 import { fetchByRisk } from "./api";
 import type {
   ByRiskResponse,
@@ -22,41 +26,6 @@ import {
 const REFRESH_MS = 30_000;
 const PAGE_SIZE_OPTIONS = [25, 50, 100, 200];
 const DEFAULT_PAGE_SIZE = 50;
-const RISK_ORDER: RiskLevel[] = ["CRITICAL", "HIGH", "MEDIUM", "SAFE"];
-
-const RISK_STYLES: Record<
-  RiskLevel,
-  { pill: string; bar: string; chipBg: string; text: string; dot: string }
-> = {
-  CRITICAL: {
-    pill: "bg-rose-100 text-rose-700 ring-1 ring-inset ring-rose-300 dark:bg-rose-500/15 dark:text-rose-300 dark:ring-rose-500/40",
-    bar: "before:bg-rose-500",
-    chipBg: "bg-rose-50/40 hover:bg-rose-50 dark:bg-rose-500/5 dark:hover:bg-rose-500/10",
-    text: "text-rose-700 dark:text-rose-300",
-    dot: "bg-rose-500",
-  },
-  HIGH: {
-    pill: "bg-orange-100 text-orange-700 ring-1 ring-inset ring-orange-300 dark:bg-orange-500/15 dark:text-orange-300 dark:ring-orange-500/40",
-    bar: "before:bg-orange-500",
-    chipBg: "bg-orange-50/40 hover:bg-orange-50 dark:bg-orange-500/5 dark:hover:bg-orange-500/10",
-    text: "text-orange-700 dark:text-orange-300",
-    dot: "bg-orange-500",
-  },
-  MEDIUM: {
-    pill: "bg-yellow-100 text-yellow-800 ring-1 ring-inset ring-yellow-300 dark:bg-yellow-500/15 dark:text-yellow-300 dark:ring-yellow-500/40",
-    bar: "before:bg-yellow-500",
-    chipBg: "bg-yellow-50/40 hover:bg-yellow-50 dark:bg-yellow-500/5 dark:hover:bg-yellow-500/10",
-    text: "text-yellow-700 dark:text-yellow-300",
-    dot: "bg-yellow-500",
-  },
-  SAFE: {
-    pill: "bg-emerald-100 text-emerald-700 ring-1 ring-inset ring-emerald-300 dark:bg-emerald-500/15 dark:text-emerald-300 dark:ring-emerald-500/40",
-    bar: "before:bg-emerald-500",
-    chipBg: "bg-emerald-50/40 hover:bg-emerald-50 dark:bg-emerald-500/5 dark:hover:bg-emerald-500/10",
-    text: "text-emerald-700 dark:text-emerald-300",
-    dot: "bg-emerald-500",
-  },
-};
 
 const PROTOCOL_LABEL: Record<ProtocolFilter, string> = {
   all: "All protocols",
@@ -64,12 +33,13 @@ const PROTOCOL_LABEL: Record<ProtocolFilter, string> = {
   lendle: "Lendle",
 };
 
-type Route = "dashboard" | "pricing";
+type Route = "dashboard" | "pricing" | "recent";
 
 function parseHash(): Route {
   if (typeof window === "undefined") return "dashboard";
   const h = window.location.hash.replace(/^#/, "");
   if (h === "/pricing" || h === "/api") return "pricing";
+  if (h === "/recent" || h === "/positions/recent") return "recent";
   return "dashboard";
 }
 
@@ -81,7 +51,8 @@ function useHashRoute(): [Route, (r: Route) => void] {
     return () => window.removeEventListener("hashchange", onHash);
   }, []);
   const navigate = useCallback((r: Route) => {
-    window.location.hash = r === "pricing" ? "/pricing" : "/";
+    window.location.hash =
+      r === "pricing" ? "/pricing" : r === "recent" ? "/recent" : "/";
   }, []);
   return [route, navigate];
 }
@@ -205,6 +176,8 @@ export default function App() {
 
       {route === "pricing" ? (
         <Pricing />
+      ) : route === "recent" ? (
+        <Recent />
       ) : (
       <main className="mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
         {error && (
@@ -413,6 +386,12 @@ function Header({
               onClick={() => onNavigate("dashboard")}
             >
               Dashboard
+            </NavLink>
+            <NavLink
+              active={route === "recent"}
+              onClick={() => onNavigate("recent")}
+            >
+              Recent
             </NavLink>
             <NavLink
               active={route === "pricing"}
@@ -684,47 +663,6 @@ function PositionsTable({
   );
 }
 
-function RowTooltip({
-  row,
-  x,
-  y,
-}: {
-  row: PositionRow;
-  x: number;
-  y: number;
-}) {
-  const OFFSET = 14;
-  const W = 320;
-  const left =
-    typeof window !== "undefined" && x + OFFSET + W > window.innerWidth
-      ? x - OFFSET - W
-      : x + OFFSET;
-  const top = y + OFFSET;
-  return (
-    <div
-      role="tooltip"
-      className="pointer-events-none fixed z-50 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs shadow-lg dark:border-slate-700 dark:bg-slate-900 dark:shadow-black/40"
-      style={{ left, top, width: W }}
-    >
-      <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-        Wallet
-      </div>
-      <div className="mono mt-0.5 break-all text-slate-900 dark:text-slate-100">
-        {row.owner}
-      </div>
-      <div className="mt-2 flex items-center justify-between text-[10px] text-slate-500 dark:text-slate-400">
-        <span>
-          <span className="uppercase tracking-wider">{row.protocol}</span> ·{" "}
-          {row.risk_level}
-        </span>
-        <span className="mono" title={row.position_id}>
-          {shortId(row.position_id)}
-        </span>
-      </div>
-    </div>
-  );
-}
-
 function PositionRowView({
   p,
   onEnter,
@@ -762,8 +700,13 @@ function PositionRowView({
           {p.protocol}
         </span>
       </td>
-      <td className="px-3 py-2.5 mono text-xs text-slate-700 dark:text-slate-300" title={p.owner}>
-        {shortAddress(p.owner)}
+      <td className="px-3 py-2.5 text-xs text-slate-700 dark:text-slate-300">
+        <span className="inline-flex items-center gap-1.5">
+          <span className="mono" title={p.owner}>
+            {shortAddress(p.owner)}
+          </span>
+          <CopyButton value={p.owner} />
+        </span>
       </td>
       <td className="px-3 py-2.5 text-xs text-slate-800 dark:text-slate-200">
         {p.dominant_collateral ?? <span className="text-slate-400 dark:text-slate-500">—</span>}

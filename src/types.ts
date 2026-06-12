@@ -34,3 +34,27 @@ export interface ByRiskParams {
   limit: number;
   skip: number;
 }
+
+export interface RecentPositionRow {
+  block_number: number;
+  captured_at: string;
+  position_id: string;
+  protocol: ProtocolId;
+  owner: string;
+  health_factor: string;
+  risk_level: RiskLevel;
+  dominant_collateral: string | null;
+  total_collateral_usd: string;
+  total_debt_usd: string;
+}
+
+export interface RecentPositionsResponse {
+  limit: number;
+  count: number;
+  positions: RecentPositionRow[];
+}
+
+export interface RecentParams {
+  limit: number;
+  owner?: string;
+}
