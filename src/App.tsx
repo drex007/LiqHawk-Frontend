@@ -180,6 +180,50 @@ export default function App() {
         <Recent />
       ) : (
       <main className="mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
+        <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800/80 dark:bg-slate-900/40 sm:p-6">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">
+              Live
+            </span>
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-2xl">
+                Real-time liquidation risk on Mantle.
+              </h2>
+              <p className="mt-1.5 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
+                LiqHawk tracks every borrow position on{" "}
+                <span className="font-semibold text-slate-800 dark:text-slate-200">
+                  INIT Capital
+                </span>{" "}
+                and{" "}
+                <span className="font-semibold text-slate-800 dark:text-slate-200">
+                  Lendle
+                </span>{" "}
+                — surfacing health factors, distance-to-liquidation, and risk
+                level for each one. Snapshots refresh every block, and you can
+                wire critical alerts straight into{" "}
+                <a
+                  href="https://t.me/liqhawk_alerts"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-sky-600 underline-offset-2 hover:underline dark:text-sky-300"
+                >
+                  Telegram
+                </a>{" "}
+                or{" "}
+                <a
+                  href="https://discord.gg/Xva5Df6AJ"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-medium text-indigo-600 underline-offset-2 hover:underline dark:text-indigo-300"
+                >
+                  Discord
+                </a>
+                .
+              </p>
+            </div>
+          </div>
+        </section>
+
         {error && (
           <div className="mb-6 rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
             <span className="font-semibold">API error:</span> {error}
