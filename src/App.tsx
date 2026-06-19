@@ -27,6 +27,10 @@ const REFRESH_MS = 30_000;
 const PAGE_SIZE_OPTIONS = [25, 50, 100, 200];
 const DEFAULT_PAGE_SIZE = 50;
 
+// On-chain logger: every snapshot is committed on Mantle for verifiability.
+const LOGGER_CONTRACT = "0x554E92794cb92cc4058a23BD0F7f7e9C6497f2B5";
+const LOGGER_EXPLORER_URL = `https://mantlescan.xyz/address/${LOGGER_CONTRACT}`;
+
 const PROTOCOL_LABEL: Record<ProtocolFilter, string> = {
   all: "All protocols",
   init: "INIT Capital",
@@ -296,7 +300,19 @@ export default function App() {
 
       <footer className="border-t border-slate-200 py-5 text-xs text-slate-500 dark:border-slate-800/70 dark:text-slate-500">
         <div className="mx-auto flex max-w-7xl flex-col items-center gap-3 px-4 sm:flex-row sm:justify-between sm:gap-4 sm:px-6 lg:px-8">
-          <span>LiqHawk — Mantle · refresh {REFRESH_MS / 1000}s</span>
+          <div className="flex flex-col items-center gap-1 sm:flex-row sm:gap-3">
+            <span>LiqHawk — Mantle · refresh {REFRESH_MS / 1000}s</span>
+            <a
+              href={LOGGER_EXPLORER_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 font-medium text-slate-500 transition hover:text-emerald-600 dark:text-slate-400 dark:hover:text-emerald-400"
+              title="On-chain logger contract on Mantle"
+            >
+              <ChainIcon className="h-3.5 w-3.5" />
+              <span className="mono">{shortAddress(LOGGER_CONTRACT)}</span>
+            </a>
+          </div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400 dark:text-slate-500">
               Live alerts
@@ -453,6 +469,31 @@ function Hero({
               </svg>
             </button>
           </div>
+
+          <a
+            href={LOGGER_EXPLORER_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 transition hover:border-emerald-300 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:border-emerald-500/40"
+            title="View the on-chain logger contract on Mantlescan"
+          >
+            <ChainIcon className="h-3.5 w-3.5" />
+            Snapshots logged on-chain
+            <span className="mono text-emerald-600/80 dark:text-emerald-400/80">
+              {shortAddress(LOGGER_CONTRACT)}
+            </span>
+            <svg
+              viewBox="0 0 24 24"
+              className="h-3 w-3 transition group-hover:translate-x-0.5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M7 17 17 7M9 7h8v8" />
+            </svg>
+          </a>
         </div>
 
         {/* Live stat panel */}
@@ -650,6 +691,24 @@ function Header({
         </div>
       </div>
     </header>
+  );
+}
+
+function ChainIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+    </svg>
   );
 }
 
