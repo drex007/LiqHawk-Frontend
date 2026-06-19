@@ -180,49 +180,14 @@ export default function App() {
         <Recent />
       ) : (
       <main className="mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
-        <section className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800/80 dark:bg-slate-900/40 sm:p-6">
-          <div className="flex items-start gap-3">
-            <span className="mt-0.5 inline-flex items-center rounded-full bg-rose-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">
-              Live
-            </span>
-            <div>
-              <h2 className="text-xl font-semibold tracking-tight text-slate-900 dark:text-slate-100 sm:text-2xl">
-                Real-time liquidation risk on Mantle.
-              </h2>
-              <p className="mt-1.5 max-w-3xl text-sm text-slate-600 dark:text-slate-400">
-                LiqHawk tracks every borrow position on{" "}
-                <span className="font-semibold text-slate-800 dark:text-slate-200">
-                  INIT Capital
-                </span>{" "}
-                and{" "}
-                <span className="font-semibold text-slate-800 dark:text-slate-200">
-                  Lendle
-                </span>{" "}
-                — surfacing health factors, distance-to-liquidation, and risk
-                level for each one. Snapshots refresh every block, and you can
-                wire critical alerts straight into{" "}
-                <a
-                  href="https://t.me/liqhawk_alerts"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium text-sky-600 underline-offset-2 hover:underline dark:text-sky-300"
-                >
-                  Telegram
-                </a>{" "}
-                or{" "}
-                <a
-                  href="https://discord.gg/Xva5Df6AJ"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-medium text-indigo-600 underline-offset-2 hover:underline dark:text-indigo-300"
-                >
-                  Discord
-                </a>
-                .
-              </p>
-            </div>
-          </div>
-        </section>
+        <Hero
+          totalPositions={totalPositions}
+          criticalCount={stats.CRITICAL}
+          block={data?.block_number}
+          capturedAgo={capturedAgo}
+          hasData={!!data}
+          onNavigate={navigate}
+        />
 
         {error && (
           <div className="mb-6 rounded-xl border border-rose-300 bg-rose-50 px-4 py-3 text-sm text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-200">
@@ -359,6 +324,187 @@ export default function App() {
           </div>
         </div>
       </footer>
+    </div>
+  );
+}
+
+function Hero({
+  totalPositions,
+  criticalCount,
+  block,
+  capturedAgo,
+  hasData,
+  onNavigate,
+}: {
+  totalPositions: number;
+  criticalCount: number;
+  block?: number;
+  capturedAgo: number;
+  hasData: boolean;
+  onNavigate: (r: Route) => void;
+}) {
+  const features = [
+    "Every-block snapshots",
+    "Health factor & distance-to-liquidation",
+    "INIT Capital + Lendle",
+    "Instant critical alerts",
+  ];
+  return (
+    <section className="relative mb-6 overflow-hidden rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800/80 dark:bg-slate-900/40 sm:p-8">
+      {/* Ambient glow */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-rose-500/10 blur-3xl dark:bg-rose-500/15"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-sky-500/10 blur-3xl dark:bg-sky-500/10"
+      />
+
+      <div className="relative grid items-center gap-8 lg:grid-cols-[1.4fr_1fr]">
+        <div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-rose-700 dark:bg-rose-500/15 dark:text-rose-300">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-rose-500 opacity-75" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-rose-500" />
+            </span>
+            Live · Mantle Network
+          </span>
+
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100 sm:text-4xl">
+            Never get caught by a{" "}
+            <span className="bg-gradient-to-r from-rose-500 to-orange-500 bg-clip-text text-transparent">
+              liquidation
+            </span>{" "}
+            again.
+          </h2>
+
+          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-slate-600 dark:text-slate-400 sm:text-base">
+            LiqHawk watches every borrow position on{" "}
+            <span className="font-semibold text-slate-800 dark:text-slate-200">
+              INIT Capital
+            </span>{" "}
+            and{" "}
+            <span className="font-semibold text-slate-800 dark:text-slate-200">
+              Lendle
+            </span>
+            , refreshing on every block to surface health factors,
+            distance-to-liquidation, and risk levels in real time — so you can
+            act before the market does.
+          </p>
+
+          <ul className="mt-5 flex flex-wrap gap-2">
+            {features.map((f) => (
+              <li
+                key={f}
+                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-600 dark:border-slate-700/70 dark:bg-slate-800/40 dark:text-slate-300"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  className="h-3.5 w-3.5 text-emerald-500 dark:text-emerald-400"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M20 6 9 17l-5-5" />
+                </svg>
+                {f}
+              </li>
+            ))}
+          </ul>
+
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <a
+              href="https://t.me/liqhawk_alerts"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-slate-100 shadow-sm transition hover:bg-slate-800 dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white"
+            >
+              <TelegramIcon className="h-4 w-4" />
+              Get Telegram alerts
+            </a>
+            <a
+              href="https://discord.gg/Xva5Df6AJ"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-indigo-400 hover:text-indigo-600 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200 dark:hover:border-indigo-500 dark:hover:text-indigo-300"
+            >
+              <DiscordIcon className="h-4 w-4" />
+              Join Discord
+            </a>
+            <button
+              type="button"
+              onClick={() => onNavigate("pricing")}
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-slate-600 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-slate-100"
+            >
+              Explore the API
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M5 12h14M13 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        {/* Live stat panel */}
+        <div className="grid grid-cols-2 gap-3">
+          <HeroStat
+            label="Positions tracked"
+            value={hasData ? totalPositions.toLocaleString() : "—"}
+            accent="text-slate-900 dark:text-slate-100"
+          />
+          <HeroStat
+            label="Critical now"
+            value={hasData ? criticalCount.toLocaleString() : "—"}
+            accent="text-rose-600 dark:text-rose-400"
+          />
+          <HeroStat
+            label="Latest block"
+            value={block ? `#${block.toLocaleString()}` : "—"}
+            accent="text-slate-900 dark:text-slate-100"
+            mono
+          />
+          <HeroStat
+            label="Last snapshot"
+            value={hasData ? `${capturedAgo}s ago` : "—"}
+            accent="text-emerald-600 dark:text-emerald-400"
+          />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function HeroStat({
+  label,
+  value,
+  accent,
+  mono,
+}: {
+  label: string;
+  value: string;
+  accent: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-slate-50/60 px-4 py-3 dark:border-slate-800/80 dark:bg-slate-900/50">
+      <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        {label}
+      </div>
+      <div
+        className={`mt-1 text-2xl font-bold tabular-nums ${accent} ${mono ? "mono text-xl" : ""}`}
+      >
+        {value}
+      </div>
     </div>
   );
 }
